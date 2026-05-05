@@ -11,18 +11,17 @@ export default function CheckoutPage() {
   const { items, total, clear } = useCart();
 
   // ── Step state ───────────────────────────────────
-  const [step, setStep] = useState<Step>("info");
+  const [step, setStep]       = useState<Step>("info");
+  const [loading, setLoading] = useState(false);
 
   // ── Form state ───────────────────────────────────
   const [form, setForm] = useState({
-    // Shipping info
-    firstName: "",
-    lastName:  "",
-    email:     "",
-    address:   "",
-    city:      "",
-    zip:       "",
-    // Payment info
+    firstName:   "",
+    lastName:    "",
+    email:       "",
+    address:     "",
+    city:        "",
+    zip:         "",
     nameOnCard:  "",
     cardNumber:  "",
     expiry:      "",
@@ -38,10 +37,43 @@ export default function CheckoutPage() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  // ── Place order ──────────────────────────────────
-  function handlePlaceOrder() {
-    clear();                    // empty the cart
-    setStep("confirmation");    // show success screen
+  // ── Place order — calls real API ─────────────────
+  async function handlePlaceOrder() {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/orders", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            productId: i.product.id,
+            name:      i.product.name,
+            price:     i.product.price,
+            quantity:  i.quantity,
+          })),
+          shipping: {
+            firstName: form.firstName,
+            lastName:  form.lastName,
+            email:     form.email,
+            address:   form.address,
+            city:      form.city,
+            zip:       form.zip,
+          },
+          total: grandTotal,
+        }),
+      });
+
+      if (response.ok) {
+        clear();                 // empty the cart
+        setStep("confirmation"); // show success screen
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } catch {
+      alert("Network error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   // ────────────────────────────────────────────────
@@ -57,7 +89,9 @@ export default function CheckoutPage() {
           <h1 className="text-2xl font-semibold mb-2">Order confirmed!</h1>
           <p className="text-stone-500 text-sm mb-1">
             Thank you for your purchase,{" "}
-            <span className="font-medium text-stone-700">{form.firstName}</span>.
+            <span className="font-medium text-stone-700">
+              {form.firstName}
+            </span>.
           </p>
           <p className="text-stone-400 text-sm mb-2">
             Confirmation sent to{" "}
@@ -144,9 +178,7 @@ export default function CheckoutPage() {
               >
                 {s === "info" ? "Shipping" : "Payment"}
               </span>
-              {i < 1 && (
-                <div className="w-8 h-px bg-stone-200 mx-1" />
-              )}
+              {i < 1 && <div className="w-8 h-px bg-stone-200 mx-1" />}
             </div>
           ))}
         </div>
@@ -330,9 +362,12 @@ export default function CheckoutPage() {
                   </button>
                   <button
                     onClick={handlePlaceOrder}
-                    className="flex-1 bg-emerald-600 text-white font-medium py-3 rounded-xl hover:bg-emerald-700 transition-colors"
+                    disabled={loading}
+                    className="flex-1 bg-emerald-600 text-white font-medium py-3 rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-60"
                   >
-                    Place order — ${grandTotal.toFixed(2)}
+                    {loading
+                      ? "Placing order..."
+                      : `Place order — $${grandTotal.toFixed(2)}`}
                   </button>
                 </div>
               </div>
@@ -348,10 +383,7 @@ export default function CheckoutPage() {
             {/* Cart items */}
             <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div
-                  key={item.product.id}
-                  className="flex items-center gap-3"
-                >
+                <div key={item.product.id} className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-stone-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
                     {item.product.emoji}
                   </div>
