@@ -40,8 +40,10 @@ export default function ProductPage({
     : null;
 
   // ── Add to cart — now calls real cart ───────────
+  // ── Add to cart — now calls real cart ───────────
   function handleAdd() {
-    add(product);          // ← adds to global cart context
+    if (!product) return;  // ← tells TypeScript product is defined
+    add(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
