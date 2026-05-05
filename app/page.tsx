@@ -1,65 +1,304 @@
-import Image from "next/image";
+import { products } from "@/lib/data";
+import Link from "next/link";
 
 export default function Home() {
+  const featured    = products.slice(0, 4);
+  const bestsellers = products.filter((p) => p.badge === "bestseller");
+  const newArrivals = products.filter((p) => p.badge === "new");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="bg-stone-50 min-h-screen">
+
+      {/* ─────────────────────────────────────────
+          HERO
+      ───────────────────────────────────────── */}
+      <section className="bg-stone-900 text-white px-6 py-24">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-emerald-400 text-sm font-medium tracking-widest uppercase mb-4">
+            New season arrivals
           </p>
+          <h1 className="text-5xl font-semibold tracking-tight leading-tight mb-6 max-w-xl">
+            Curated goods for modern living
+          </h1>
+          <p className="text-stone-400 text-lg max-w-lg mb-10 leading-relaxed">
+            Thoughtfully selected electronics, fashion, home goods and food
+            products — all in one place.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/products"
+              className="bg-emerald-500 hover:bg-emerald-400 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+            >
+              Shop now →
+            </Link>
+            <Link
+              href="/products?category=Electronics"
+              className="bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+            >
+              Electronics →
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* ─────────────────────────────────────────
+          TRUST BADGES
+      ───────────────────────────────────────── */}
+      <section className="bg-white border-b border-stone-200">
+        <div className="max-w-5xl mx-auto px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { emoji: "🚚", title: "Free shipping over $50", sub: "Fast, tracked delivery"  },
+            { emoji: "↩️", title: "30-day returns",          sub: "No questions asked"      },
+            { emoji: "🔒", title: "Secure checkout",         sub: "256-bit SSL encryption" },
+          ].map((b) => (
+            <div key={b.title} className="flex items-center gap-3 text-sm">
+              <span className="text-2xl">{b.emoji}</span>
+              <div>
+                <p className="font-medium text-stone-900">{b.title}</p>
+                <p className="text-stone-500 text-xs">{b.sub}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* ─────────────────────────────────────────
+          FEATURED PRODUCTS
+      ───────────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto px-6 py-14">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Featured Products
+            </h2>
+            <p className="text-stone-500 text-sm mt-1">Our most popular picks</p>
+          </div>
+          <Link
+            href="/products"
+            className="text-sm text-emerald-600 hover:underline font-medium"
+          >
+            View all →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {featured.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+            >
+              <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl">
+                {product.emoji}
+              </div>
+
+              <div className="p-4">
+                {product.badge && (
+                  <span
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block ${
+                      product.badge === "new"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : product.badge === "sale"
+                        ? "bg-red-100 text-red-600"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {product.badge}
+                  </span>
+                )}
+
+                <h3 className="font-medium text-stone-900 text-sm leading-snug">
+                  {product.name}
+                </h3>
+
+                <p className="text-xs text-stone-400 mt-1">
+                  ★ {product.rating} ({product.reviews})
+                </p>
+
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-emerald-600 font-semibold">
+                      ${product.price}
+                    </span>
+                    {product.originalPrice && (
+                      <span className="text-xs text-stone-400 line-through">
+                        ${product.originalPrice}
+                      </span>
+                    )}
+                  </div>
+                  <button className="bg-stone-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-stone-700 transition-colors">
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────
+          SHOP BY CATEGORY
+      ───────────────────────────────────────── */}
+      <section className="bg-stone-100 py-14 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-semibold tracking-tight mb-8">
+            Shop by category
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Electronics",   emoji: "⚡", bg: "bg-blue-50",    text: "text-blue-600"    },
+              { label: "Fashion",       emoji: "✨", bg: "bg-pink-50",    text: "text-pink-600"    },
+              { label: "Home & Living", emoji: "🏡", bg: "bg-amber-50",   text: "text-amber-600"   },
+              { label: "Food & Drink",  emoji: "🌿", bg: "bg-emerald-50", text: "text-emerald-600" },
+            ].map((cat) => (
+              <Link
+                key={cat.label}
+                href={`/products?category=${cat.label}`}
+                className="bg-white rounded-xl p-6 flex flex-col items-center gap-3 hover:shadow-md transition-shadow border border-stone-200"
+              >
+                <span
+                  className={`text-3xl w-14 h-14 rounded-full flex items-center justify-center ${cat.bg} ${cat.text}`}
+                >
+                  {cat.emoji}
+                </span>
+                <span className="font-medium text-sm text-stone-800">
+                  {cat.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────
+          BESTSELLERS
+      ───────────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto px-6 py-14">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Bestsellers
+            </h2>
+            <p className="text-stone-500 text-sm mt-1">
+              Most loved by our customers
+            </p>
+          </div>
+          <Link
+            href="/products"
+            className="text-sm text-emerald-600 hover:underline font-medium"
+          >
+            View all →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {bestsellers.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+            >
+              <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl">
+                {product.emoji}
+              </div>
+              <div className="p-4">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block bg-amber-100 text-amber-700">
+                  bestseller
+                </span>
+                <h3 className="font-medium text-stone-900 text-sm leading-snug">
+                  {product.name}
+                </h3>
+                <p className="text-xs text-stone-400 mt-1">
+                  ★ {product.rating} ({product.reviews})
+                </p>
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-emerald-600 font-semibold">
+                    ${product.price}
+                  </span>
+                  <button className="bg-stone-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-stone-700 transition-colors">
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────
+          NEW ARRIVALS
+      ───────────────────────────────────────── */}
+      <section className="bg-stone-100 py-14 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                New Arrivals
+              </h2>
+              <p className="text-stone-500 text-sm mt-1">
+                Just landed in the store
+              </p>
+            </div>
+            <Link
+              href="/products"
+              className="text-sm text-emerald-600 hover:underline font-medium"
+            >
+              See all new →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {newArrivals.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl">
+                  {product.emoji}
+                </div>
+                <div className="p-4">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block bg-emerald-100 text-emerald-700">
+                    new
+                  </span>
+                  <h3 className="font-medium text-stone-900 text-sm leading-snug">
+                    {product.name}
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-1">
+                    ★ {product.rating} ({product.reviews})
+                  </p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-emerald-600 font-semibold">
+                      ${product.price}
+                    </span>
+                    <button className="bg-stone-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-stone-700 transition-colors">
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────
+          FOOTER
+      ───────────────────────────────────────── */}
+      <footer className="bg-stone-900 text-stone-400 px-6 py-10">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-white font-semibold text-lg">
+            my<span className="text-emerald-400">store</span>
+          </p>
+          <p className="text-sm">© 2025 MyStore. All rights reserved.</p>
+          <div className="flex gap-6 text-sm">
+            <Link href="/products" className="hover:text-white transition-colors">
+              Shop
+            </Link>
+            <Link href="/checkout" className="hover:text-white transition-colors">
+              Checkout
+            </Link>
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 }
