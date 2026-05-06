@@ -1,6 +1,91 @@
+"use client";
+
 import { products } from "@/lib/data";
 import Link from "next/link";
+import { useCart } from "@/lib/cart-context";
+import { useState } from "react";
 
+// ── Reusable product card with working Add button ────
+function ProductCard({ product }: { product: (typeof products)[0] }) {
+  const { add, items } = useCart();
+  const [added, setAdded] = useState(false);
+  const inCart = items.some((i) => i.product.id === product.id);
+
+  function handleAdd(e: React.MouseEvent) {
+    e.preventDefault(); // stop Link navigation if card is wrapped
+    add(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
+
+  return (
+    <div className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all">
+      {/* Image */}
+      <Link href={`/products/${product.id}`}>
+        <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl cursor-pointer">
+          {product.emoji}
+        </div>
+      </Link>
+
+      <div className="p-4">
+        {/* Badge */}
+        {product.badge && (
+          <span
+            className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block ${
+              product.badge === "new"
+                ? "bg-emerald-100 text-emerald-700"
+                : product.badge === "sale"
+                ? "bg-red-100 text-red-600"
+                : "bg-amber-100 text-amber-700"
+            }`}
+          >
+            {product.badge}
+          </span>
+        )}
+
+        {/* Name */}
+        <Link href={`/products/${product.id}`}>
+          <h3 className="font-medium text-stone-900 text-sm leading-snug hover:text-emerald-600 transition-colors">
+            {product.name}
+          </h3>
+        </Link>
+
+        {/* Rating */}
+        <p className="text-xs text-stone-400 mt-1">
+          ★ {product.rating} ({product.reviews})
+        </p>
+
+        {/* Price + Add button */}
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-emerald-600 font-semibold">
+              ${product.price}
+            </span>
+            {product.originalPrice && (
+              <span className="text-xs text-stone-400 line-through">
+                ${product.originalPrice}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={handleAdd}
+            className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all ${
+              added
+                ? "bg-emerald-500 text-white"
+                : inCart
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-stone-900 text-white hover:bg-stone-700"
+            }`}
+          >
+            {added ? "✓ Added!" : inCart ? "In cart" : "Add"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Homepage ─────────────────────────────────────────
 export default function Home() {
   const featured    = products.slice(0, 4);
   const bestsellers = products.filter((p) => p.badge === "bestseller");
@@ -9,9 +94,7 @@ export default function Home() {
   return (
     <div className="bg-stone-50 min-h-screen">
 
-      {/* ─────────────────────────────────────────
-          HERO
-      ───────────────────────────────────────── */}
+      {/* ── Hero ── */}
       <section className="bg-stone-900 text-white px-6 py-24">
         <div className="max-w-5xl mx-auto">
           <p className="text-emerald-400 text-sm font-medium tracking-widest uppercase mb-4">
@@ -41,9 +124,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          TRUST BADGES
-      ───────────────────────────────────────── */}
+      {/* ── Trust badges ── */}
       <section className="bg-white border-b border-stone-200">
         <div className="max-w-5xl mx-auto px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
@@ -62,9 +143,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          FEATURED PRODUCTS
-      ───────────────────────────────────────── */}
+      {/* ── Featured Products ── */}
       <section className="max-w-5xl mx-auto px-6 py-14">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -80,64 +159,14 @@ export default function Home() {
             View all →
           </Link>
         </div>
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {featured.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-            >
-              <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl">
-                {product.emoji}
-              </div>
-
-              <div className="p-4">
-                {product.badge && (
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block ${
-                      product.badge === "new"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : product.badge === "sale"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-amber-100 text-amber-700"
-                    }`}
-                  >
-                    {product.badge}
-                  </span>
-                )}
-
-                <h3 className="font-medium text-stone-900 text-sm leading-snug">
-                  {product.name}
-                </h3>
-
-                <p className="text-xs text-stone-400 mt-1">
-                  ★ {product.rating} ({product.reviews})
-                </p>
-
-                <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-emerald-600 font-semibold">
-                      ${product.price}
-                    </span>
-                    {product.originalPrice && (
-                      <span className="text-xs text-stone-400 line-through">
-                        ${product.originalPrice}
-                      </span>
-                    )}
-                  </div>
-                  <button className="bg-stone-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-stone-700 transition-colors">
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
+          {featured.map((p) => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          SHOP BY CATEGORY
-      ───────────────────────────────────────── */}
+      {/* ── Shop by Category ── */}
       <section className="bg-stone-100 py-14 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-semibold tracking-tight mb-8">
@@ -169,9 +198,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          BESTSELLERS
-      ───────────────────────────────────────── */}
+      {/* ── Bestsellers ── */}
       <section className="max-w-5xl mx-auto px-6 py-14">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -189,43 +216,14 @@ export default function Home() {
             View all →
           </Link>
         </div>
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {bestsellers.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-            >
-              <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl">
-                {product.emoji}
-              </div>
-              <div className="p-4">
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block bg-amber-100 text-amber-700">
-                  bestseller
-                </span>
-                <h3 className="font-medium text-stone-900 text-sm leading-snug">
-                  {product.name}
-                </h3>
-                <p className="text-xs text-stone-400 mt-1">
-                  ★ {product.rating} ({product.reviews})
-                </p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-emerald-600 font-semibold">
-                    ${product.price}
-                  </span>
-                  <button className="bg-stone-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-stone-700 transition-colors">
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
+          {bestsellers.map((p) => (
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          NEW ARRIVALS
-      ───────────────────────────────────────── */}
+      {/* ── New Arrivals ── */}
       <section className="bg-stone-100 py-14 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -244,44 +242,15 @@ export default function Home() {
               See all new →
             </Link>
           </div>
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {newArrivals.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white border border-stone-200 rounded-xl overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer"
-              >
-                <div className="aspect-square bg-stone-50 flex items-center justify-center text-5xl">
-                  {product.emoji}
-                </div>
-                <div className="p-4">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize mb-2 inline-block bg-emerald-100 text-emerald-700">
-                    new
-                  </span>
-                  <h3 className="font-medium text-stone-900 text-sm leading-snug">
-                    {product.name}
-                  </h3>
-                  <p className="text-xs text-stone-400 mt-1">
-                    ★ {product.rating} ({product.reviews})
-                  </p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-emerald-600 font-semibold">
-                      ${product.price}
-                    </span>
-                    <button className="bg-stone-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-stone-700 transition-colors">
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {newArrivals.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─────────────────────────────────────────
-          FOOTER
-      ───────────────────────────────────────── */}
+      {/* ── Footer ── */}
       <footer className="bg-stone-900 text-stone-400 px-6 py-10">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white font-semibold text-lg">
