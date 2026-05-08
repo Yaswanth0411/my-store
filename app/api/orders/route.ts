@@ -1,33 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// ── In-memory store ──────────────────────────────────
-// In a real app this would be a database
-// For now orders live in memory while the server runs
-type OrderItem = {
-  productId: number;
-  name:      string;
-  price:     number;
-  quantity:  number;
-};
-
-type Order = {
-  id:        string;
-  items:     OrderItem[];
-  shipping: {
-    firstName: string;
-    lastName:  string;
-    email:     string;
-    address:   string;
-    city:      string;
-    zip:       string;
-  };
-  total:     number;
-  status:    string;
-  createdAt: string;
-};
-
-// This array stores orders while the dev server is running
-const orders: Order[] = [];
+import { supabase } from "@/lib/supabase";
 
 // ── POST /api/orders — place a new order ─────────────
 export async function POST(req: NextRequest) {
@@ -35,46 +7,80 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { items, shipping, total } = body;
 
-    // Basic validation
-    if (!items || items.length === 0) {
+    if (!items?.length || !shipping?.email) {
       return NextResponse.json(
-        { error: "No items in order" },
-        { status: 400 }
-      );
-    }
-    if (!shipping?.email) {
-      return NextResponse.json(
-        { error: "Shipping info required" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Create the order
-    const order: Order = {
-      id:        `ORD-${Date.now()}`,
-      items,
-      shipping,
-      total,
-      status:    "confirmed",
-      createdAt: new Date().toISOString(),
-    };
+    // Create order ID
+    const orderId = `ORD-${Date.now()}`;
 
-    orders.push(order);
+    // ── Insert order ─────────────────────────────
+    const { error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        id:       orderId,
+        total,
+        status:   "confirmed",
+        shipping,
+      });
 
-    return NextResponse.json({ order }, { status: 201 });
+    if (orderError) throw orderError;
 
-  } catch {
+    // ── Insert order items ───────────────────────
+    const orderItems = items.map((item: {
+      productId: number;
+      name:      string;
+      price:     number;
+      quantity:  number;
+    }) => ({
+      order_id:     orderId,
+      product_id:   item.productId,
+      product_name: item.name,
+      price:        item.price,
+      quantity:     item.quantity,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(orderItems);
+
+    if (itemsError) throw itemsError;
+
+    // ── Reduce stock for each product ────────────
+    for (const item of items) {
+      await supabase.rpc("decrement_stock", {
+        product_id: item.productId,
+        amount:     item.quantity,
+      });
+    }
+
     return NextResponse.json(
-      { error: "Invalid request" },
-      { status: 400 }
+      { order: { id: orderId, status: "confirmed" } },
+      { status: 201 }
     );
+
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 // ── GET /api/orders — list all orders ───────────────
 export async function GET() {
-  return NextResponse.json({
-    orders,
-    total: orders.length,
-  });
+  const { data, error } = await supabase
+    .from("orders")
+    .select(`
+      *,
+      order_items (*)
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ orders: data, total: data?.length ?? 0 });
 }
