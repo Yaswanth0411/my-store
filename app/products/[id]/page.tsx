@@ -3,8 +3,10 @@
 import { products } from "@/lib/data";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import { useCart } from "@/lib/cart-context";
+import { getSessionId } from "@/lib/session";
+import Recommendations from "@/components/Recommendations";
 
 export default function ProductPage({
   params,
@@ -27,6 +29,20 @@ export default function ProductPage({
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded]       = useState(false);
 
+  // ── Track this product view ──────────────────────
+  useEffect(() => {
+    if (!product) return;
+    const sessionId = getSessionId();
+    fetch("/api/views", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({
+        productId: product.id,
+        sessionId,
+      }),
+    });
+  }, [product?.id]);
+
   // ── Related products ────────────────────────────
   const related = products
     .filter((p) => p.category === product.category && p.id !== product.id)
@@ -39,10 +55,9 @@ export default function ProductPage({
       )
     : null;
 
-  // ── Add to cart — now calls real cart ───────────
-  // ── Add to cart — now calls real cart ───────────
+  // ── Add to cart ──────────────────────────────────
   function handleAdd() {
-    if (!product) return;  // ← tells TypeScript product is defined
+    if (!product) return;   // ← TypeScript fix
     add(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -147,7 +162,7 @@ export default function ProductPage({
               )}
             </div>
 
-            {/* Stock indicator */}
+            {/* Stock */}
             <p
               className={`text-sm font-medium mb-6 ${
                 product.stock > 10
@@ -188,7 +203,7 @@ export default function ProductPage({
               </div>
             </div>
 
-            {/* Add to cart button — wired to real cart */}
+            {/* Add to cart button */}
             <button
               onClick={handleAdd}
               disabled={product.stock === 0}
@@ -234,7 +249,7 @@ export default function ProductPage({
 
         {/* ── Related products ── */}
         {related.length > 0 && (
-          <div>
+          <div className="mb-10">
             <h2 className="text-lg font-semibold mb-5">
               More from {product.category}
             </h2>
@@ -264,6 +279,14 @@ export default function ProductPage({
             </div>
           </div>
         )}
+
+        {/* ── AI Recommendations ── */}
+        <div className="border-t border-stone-100 pt-10">
+          <Recommendations
+            currentProductId={product.id}
+            title="You might also like"
+          />
+        </div>
 
       </div>
     </div>

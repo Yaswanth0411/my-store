@@ -1,5 +1,6 @@
 "use client";
 
+import Recommendations from "@/components/Recommendations";
 import { products } from "@/lib/data";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
@@ -248,6 +249,11 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ── AI Recommendations ── */}
+      <section className="max-w-5xl mx-auto px-6 py-6">
+        <Recommendations title="Recommended for you" />
       </section>
 
       {/* ── Footer ── */}
