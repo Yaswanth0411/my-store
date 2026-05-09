@@ -1,19 +1,19 @@
 "use client";
 
-import Recommendations from "@/components/Recommendations";
 import { products } from "@/lib/data";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
+import Recommendations from "@/components/Recommendations";
 
-// ── Reusable product card with working Add button ────
+// ── Reusable product card with working Add button ─────
 function ProductCard({ product }: { product: (typeof products)[0] }) {
   const { add, items } = useCart();
   const [added, setAdded] = useState(false);
   const inCart = items.some((i) => i.product.id === product.id);
 
   function handleAdd(e: React.MouseEvent) {
-    e.preventDefault(); // stop Link navigation if card is wrapped
+    e.preventDefault();
     add(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -86,7 +86,7 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
   );
 }
 
-// ── Homepage ─────────────────────────────────────────
+// ── Homepage ──────────────────────────────────────────
 export default function Home() {
   const featured    = products.slice(0, 4);
   const bestsellers = products.filter((p) => p.badge === "bestseller");
@@ -95,7 +95,9 @@ export default function Home() {
   return (
     <div className="bg-stone-50 min-h-screen">
 
-      {/* ── Hero ── */}
+      {/* ─────────────────────────────────────────
+          HERO
+      ───────────────────────────────────────── */}
       <section className="bg-stone-900 text-white px-6 py-24">
         <div className="max-w-5xl mx-auto">
           <p className="text-emerald-400 text-sm font-medium tracking-widest uppercase mb-4">
@@ -125,7 +127,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Trust badges ── */}
+      {/* ─────────────────────────────────────────
+          TRUST BADGES
+      ───────────────────────────────────────── */}
       <section className="bg-white border-b border-stone-200">
         <div className="max-w-5xl mx-auto px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
@@ -144,14 +148,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Featured Products ── */}
+      {/* ─────────────────────────────────────────
+          FEATURED PRODUCTS
+      ───────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-14">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">
               Featured Products
             </h2>
-            <p className="text-stone-500 text-sm mt-1">Our most popular picks</p>
+            <p className="text-stone-500 text-sm mt-1">
+              Our most popular picks
+            </p>
           </div>
           <Link
             href="/products"
@@ -167,7 +175,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Shop by Category ── */}
+      {/* ─────────────────────────────────────────
+          AI RECOMMENDATIONS
+      ───────────────────────────────────────── */}
+      <section className="max-w-5xl mx-auto px-6">
+        <Recommendations title="Recommended for you" />
+      </section>
+
+      {/* ─────────────────────────────────────────
+          SHOP BY CATEGORY
+      ───────────────────────────────────────── */}
       <section className="bg-stone-100 py-14 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-semibold tracking-tight mb-8">
@@ -199,7 +216,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Bestsellers ── */}
+      {/* ─────────────────────────────────────────
+          BESTSELLERS
+      ───────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-6 py-14">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -224,7 +243,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── New Arrivals ── */}
+      {/* ─────────────────────────────────────────
+          NEW ARRIVALS
+      ───────────────────────────────────────── */}
       <section className="bg-stone-100 py-14 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -251,12 +272,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── AI Recommendations ── */}
-      <section className="max-w-5xl mx-auto px-6 py-6">
-        <Recommendations title="Recommended for you" />
-      </section>
-
-      {/* ── Footer ── */}
+      {/* ─────────────────────────────────────────
+          FOOTER
+      ───────────────────────────────────────── */}
       <footer className="bg-stone-900 text-stone-400 px-6 py-10">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white font-semibold text-lg">
@@ -264,10 +282,16 @@ export default function Home() {
           </p>
           <p className="text-sm">© 2025 MyStore. All rights reserved.</p>
           <div className="flex gap-6 text-sm">
-            <Link href="/products" className="hover:text-white transition-colors">
+            <Link
+              href="/products"
+              className="hover:text-white transition-colors"
+            >
               Shop
             </Link>
-            <Link href="/checkout" className="hover:text-white transition-colors">
+            <Link
+              href="/checkout"
+              className="hover:text-white transition-colors"
+            >
               Checkout
             </Link>
           </div>

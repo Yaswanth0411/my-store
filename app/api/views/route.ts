@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-// ── POST /api/views — track a product view ────────────
 export async function POST(req: NextRequest) {
   try {
     const { productId, sessionId } = await req.json();
@@ -29,7 +28,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ── GET /api/views — get most viewed products ─────────
 export async function GET() {
   const { data, error } = await supabase
     .from("product_views")

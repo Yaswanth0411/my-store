@@ -1,5 +1,3 @@
-// ── Gets or creates a session ID stored in localStorage ──
-// Used to track views per user without requiring login
 export function getSessionId(): string {
   if (typeof window === "undefined") return "server";
 

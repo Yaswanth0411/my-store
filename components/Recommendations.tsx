@@ -29,14 +29,13 @@ export default function Recommendations({
   currentProductId,
   title = "Recommended for you",
 }: Props) {
-  const { add, items } = useCart();
-  const [recs, setRecs]         = useState<RecommendedProduct[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [addedId, setAddedId]   = useState<number | null>(null);
+  const { add, items }        = useCart();
+  const [recs, setRecs]       = useState<RecommendedProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [addedId, setAddedId] = useState<number | null>(null);
 
   useEffect(() => {
     const sessionId = getSessionId();
-
     fetch("/api/recommendations", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
@@ -148,7 +147,7 @@ export default function Recommendations({
                   {product.name}
                 </h3>
 
-                {/* AI reason badge */}
+                {/* AI reason */}
                 <p className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md line-clamp-1">
                   ✦ {product.reason}
                 </p>
